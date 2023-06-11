@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 15:17:34 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/11 16:12:07 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/11 18:30:28 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,92 @@ int	main(int ac, char**av)
 		exit(EXIT_FAILURE);
 	}
 	
-	BitcoinExchange	btx;
+	try
+	{
+		BitcoinExchange	btx;
+		processInputRequest(av[1], btx);
+	}
+	catch (std::exception const& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 	return (0);
+}
+
+void	processInputRequest(std::string const& fname, BitcoinExchange const& btx)
+{
+	std::string line;
+	
+	std::ifstream	ifs(fname);
+    if (!ifs.is_open()) 
+        throw std::invalid_argument("Error: could not open the input file");
+
+	if (!std::getline(ifs, line))
+		throw	std::invalid_argument("Error while reading input header.");
+	if (line.compare("date | value") != 0)
+		throw	std::invalid_argument("Error: wrong input header");
+	
+	while (std::getline(ifs, line))
+		processRequestLine(line, btx);
+	if (ifs.bad())
+		throw	std::invalid_argument("Error while reading input file");
+	return ;
+}
+
+void	processRequestLine(std::string const& line, BitcoinExchange const& btx)
+{
+	std::string	date;
+	float	amountf;
+	int		amounti;
+	bool	isFloat;
+	try
+	{
+		getDateAndAmount(line, date, amountf, amounti, isFloat);
+	}
+	catch (std::exception const& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	
+	btx.getPrice(date);
+//dddd
+
+	return ;
+}
+
+void	getDateAndAmount(std::string const& line, std::string& date,
+	float& amountf, int& amounti, bool& isFloat)
+{
+	if (line.find_first_of('|') != 11 || line[10] != ' ' || line[12] != ' ')
+		throw std::invalid_argument(std::string("Error: bad input => ").append(line));
+	date = line.substr(0, 10);
+	
+	std::string	amount;
+	amount = line.substr(13, line.size());
+	char *endptr = NULL;
+
+	if (amount.find_first_of('.') != std::string::npos)
+	{
+		amountf = strtof(amount.c_str(), &endptr, 10);
+		if (*endptr)
+			throw std::invalid_argument(std::string("Error: bad input => ").append(line));
+		else if (amountf < 0)
+			throw std::invalid_argument("Error: not a positive number.");
+		else if (amountf == HUGEVALF)
+			throw std::invalid_argument("Error: too large a (float) number.");
+		isFloat = true;
+	}
+	else
+	{
+		long tmp = strtol(amount.c_str(), &endptr, 10);
+		if (*endptr)
+			throw std::invalid_argument(std::string("Error: bad input => ").append(line));
+		else if (tmp < 0)
+			throw std::invalid_argument("Error: not a positive number.");
+		else if (tmp > INT_MAX)
+			throw std::invalid_argument("Error: too large a number.");
+		amounti = (int)tmp;
+		isFloat = false;
+	}
+	return ;
 }

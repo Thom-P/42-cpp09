@@ -16,7 +16,7 @@ RM = rm -f
 ############################
 
 $(NAME) : $(OBJS)
-	$(CC) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 all : $(NAME)
 
