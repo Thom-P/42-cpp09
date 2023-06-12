@@ -6,13 +6,21 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 15:17:34 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/11 18:30:28 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/12 11:59:01 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 #include "BitcoinExchange.hpp"
+
+void	processInputRequest(std::string const& fname, BitcoinExchange const& btx);
+
+void	processRequestLine(std::string const& line, BitcoinExchange const& btx);
+
+void	getDateAndAmount(std::string const& line, std::string& date,
+	float& amountf, int& amounti, bool& isFloat);
 
 int	main(int ac, char**av)
 {
@@ -20,8 +28,7 @@ int	main(int ac, char**av)
 	{
 		std::cout << "Error: need one filename as input" << std::endl;
 		exit(EXIT_FAILURE);
-	}
-	
+	}	
 	try
 	{
 		BitcoinExchange	btx;
@@ -41,12 +48,10 @@ void	processInputRequest(std::string const& fname, BitcoinExchange const& btx)
 	std::ifstream	ifs(fname);
     if (!ifs.is_open()) 
         throw std::invalid_argument("Error: could not open the input file");
-
 	if (!std::getline(ifs, line))
 		throw	std::invalid_argument("Error while reading input header.");
 	if (line.compare("date | value") != 0)
 		throw	std::invalid_argument("Error: wrong input header");
-	
 	while (std::getline(ifs, line))
 		processRequestLine(line, btx);
 	if (ifs.bad())
@@ -60,18 +65,22 @@ void	processRequestLine(std::string const& line, BitcoinExchange const& btx)
 	float	amountf;
 	int		amounti;
 	bool	isFloat;
+	float	price;
+
 	try
 	{
 		getDateAndAmount(line, date, amountf, amounti, isFloat);
+		price = btx.getPrice(date);
 	}
 	catch (std::exception const& e)
 	{
 		std::cout << e.what() << std::endl;
+		return ;
 	}
-	
-	btx.getPrice(date);
-//dddd
-
+	if (isFloat)
+		std::cout << date << " => " << amountf << " = " << price * amountf << std::endl;
+	else
+		std::cout << date << " => " << amounti << " = " << price * amounti << std::endl;
 	return ;
 }
 
@@ -83,17 +92,17 @@ void	getDateAndAmount(std::string const& line, std::string& date,
 	date = line.substr(0, 10);
 	
 	std::string	amount;
-	amount = line.substr(13, line.size());
+	amount = line.substr(13);
 	char *endptr = NULL;
 
 	if (amount.find_first_of('.') != std::string::npos)
 	{
-		amountf = strtof(amount.c_str(), &endptr, 10);
+		amountf = strtof(amount.c_str(), &endptr);
 		if (*endptr)
 			throw std::invalid_argument(std::string("Error: bad input => ").append(line));
 		else if (amountf < 0)
 			throw std::invalid_argument("Error: not a positive number.");
-		else if (amountf == HUGEVALF)
+		else if (amountf > 1000.0f)
 			throw std::invalid_argument("Error: too large a (float) number.");
 		isFloat = true;
 	}
@@ -104,7 +113,7 @@ void	getDateAndAmount(std::string const& line, std::string& date,
 			throw std::invalid_argument(std::string("Error: bad input => ").append(line));
 		else if (tmp < 0)
 			throw std::invalid_argument("Error: not a positive number.");
-		else if (tmp > INT_MAX)
+		else if (tmp > 1000)
 			throw std::invalid_argument("Error: too large a number.");
 		amounti = (int)tmp;
 		isFloat = false;

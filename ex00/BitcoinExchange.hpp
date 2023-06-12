@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 15:00:11 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/11 17:15:26 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/12 10:59:30 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <string>
 # include <map>
 # include <fstream>
+# include <ctime>
+# include <cmath>
 
 class BitcoinExchange
 {
@@ -32,6 +34,7 @@ class BitcoinExchange
 		
 		void	_importDatabase(std::string const&);
 		void	_processDataLine(std::string const&);
+		void	_checkDateValid(std::string const& date) const;
 
 		std::map<std::string, float>	_table;
 

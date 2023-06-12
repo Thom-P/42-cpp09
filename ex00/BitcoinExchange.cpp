@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 15:24:18 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/11 18:31:08 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/12 11:45:31 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,14 @@
 
 BitcoinExchange::BitcoinExchange(void)
 {
-	std::cout << "BitcoinExchange default ctor called" << std::endl;
-	//this->_importDatabase("data.csv");
-	this->_importDatabase("databad.csv");
+	//std::cout << "BitcoinExchange default ctor called" << std::endl;
+	this->_importDatabase("data.csv");
 	return ; 
 }
 
 BitcoinExchange::~BitcoinExchange(void)
 {
-	std::cout << "BitcoinExchange default dtor called" << std::endl;
+	//std::cout << "BitcoinExchange default dtor called" << std::endl;
 	return ; 
 }
 
@@ -35,7 +34,6 @@ void	BitcoinExchange::_importDatabase(std::string const& fname)
 	std::ifstream	ifs(fname);
     if (!ifs.is_open()) 
         throw std::invalid_argument("Error: could not open the database file");
-
 	if (!std::getline(ifs, line))
 		throw	std::invalid_argument("Error while reading database header.");
 	if (line.compare("date,exchange_rate") != 0)
@@ -62,43 +60,55 @@ void	BitcoinExchange::_processDataLine(std::string const& line)
 	if (indComma == std::string::npos || indComma == line.size() - 1)
 		throw	std::invalid_argument("Error: wrong entry in database");
 	date = line.substr(0, indComma);
-	valueStr = line.substr(indComma + 1, line.size());
+	try
+	{
+		this->_checkDateValid(date);
+	}
+	catch (std::exception const& e)
+	{
+		std::string err("Error: wrong entry in database\n");
+		err.append(e.what());
+		throw	std::invalid_argument(err); 
+	}
+	valueStr = line.substr(indComma + 1);
 	value = strtof(valueStr.c_str(), &endptr);
 	if (*endptr)
 		throw	std::invalid_argument("Error: wrong entry in database");
-	//check errno here for overflow?
+	if (value < 0 || value == HUGE_VALF)
+		throw	std::invalid_argument("Error: wrong entry in database");
 	this->_table.insert(std::pair<std::string, float>(date, value));
 	return ;
 }
 
 float	BitcoinExchange::getPrice(std::string const& date) const
 {
-	if (!this->_isDateValid())
-		throw std::invalid_argument(std::string("Error: bad input => ").append(line));
+	this->_checkDateValid(date);
 	
-	//check date bounds
-	//the get upper and -1 and return price...
-
-
+	std::map<std::string,float>::const_iterator itup;
+	itup = this->_table.upper_bound(date);
+	if (itup == this->_table.begin())
+		throw	std::invalid_argument("Error: input date is earlier than database");
+	itup--;
+	return (itup->second);
 }
 
-void	BitcoinExchange::isDateValid(std::string const& date) const
+void	BitcoinExchange::_checkDateValid(std::string const& date) const
 {
 	if (date.size() != 10 || date[4] != '-' || date[7] != '-')
-		return (0);
+		throw std::invalid_argument(std::string("Error: bad input => ").append(date));
 	
-	int		year, month, day;
-	char	*endptr = NULL;
-
-	year = (int)strtol((date.substr(0, 4)).c_str(), &endptr, 10);
-	if (*endptr)
-		return (0);
-	month = (int)strtol((date.substr(5, 2)).c_str(), &endptr, 10);
-	if (*endptr)
-		return (0);
-	day = (int)strtol((date.substr(8, 2)).c_str(), &endptr, 10);
-	if (*endptr)
-		return (0);
-	// where to check if too early or too late a date?
-	return (1);
+	struct tm tm;
+	memset(&tm, 0, sizeof(tm));
+	char *endptr = NULL;
+	
+	endptr = strptime(date.c_str(), "%Y-%m-%d", &tm);
+	if (endptr == NULL || *endptr != 0)
+		throw std::invalid_argument(std::string("Error: bad input => ").append(date));
+	if (tm.tm_year < (2009 - 1900))
+		throw std::invalid_argument(std::string("Error: btc value starts in 2009 => ").append(date));
+	time_t now = time(0);
+	time_t etime = mktime(&tm);
+	if (etime > now)
+		throw std::invalid_argument(std::string("Error: this program doesn't make future prediction => ").append(date));
+	return ;
 }
