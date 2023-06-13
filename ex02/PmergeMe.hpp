@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:11:28 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/12 18:54:34 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/13 20:26:48 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <string>
 # include <vector>
 # include <cstdlib>
+# include <algorithm>
 
 class PmergeMe
 {
@@ -24,8 +25,9 @@ class PmergeMe
 		PmergeMe(char** input);
 		~PmergeMe(void);
 
-		//void	_sortInput(void);
-		void	printVec(void) const;
+		void	sortVec(void);
+//		void	printVec(void) const;
+		static void	printVec(std::vector<int> const&);
 
 	private:
 		PmergeMe(void);
@@ -33,6 +35,9 @@ class PmergeMe
 		PmergeMe&	operator=(PmergeMe const&);
 
 		void	_parseInput(char** input);
+
+		static void	_recurSortVec(std::vector<int>& vec);
+
 
 		std::vector<int> _vec;
 
