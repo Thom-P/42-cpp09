@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 19:15:08 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 19:43:24 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,23 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 	return ;
 }
 
+//Binary insert without jacobsthal sequence
+void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
+	std::vector<int>& indMain, std::vector<int>& indPend)
+{
+	std::vector<int>::iterator	it;
+	for (unsigned long i = 0; i < vecPend.size(); i++)
+	{
+		// lower_bound performs binary search
+		it = std::lower_bound(vecMain.begin(), vecMain.end(), vecPend[i]);
+		indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i]);
+		vecMain.insert(it, vecPend[i]); 
+	}
+	return ;
+}
+
+/*
+//Simple insert
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
 {
@@ -204,3 +221,5 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	}
 	return ;
 }
+*/
+
