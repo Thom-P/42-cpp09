@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 00:16:50 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 00:22:47 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
 {
-	//DEBUG
+	/*//DEBUG
 	std::cout << "\nBefore binary insert:" << std::endl;
 	std::cout << "vecMain:" << std::endl;
 	PmergeMe::printVec(vecMain);
@@ -191,7 +191,7 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	std::cout << "indMain:" << std::endl;
 	PmergeMe::printVec(indMain);
 	std::cout << "indPend:" << std::endl;
-	PmergeMe::printVec(indPend);
+	PmergeMe::printVec(indPend);*/
 	
 
 	std::vector<unsigned long> jacob;
@@ -207,12 +207,12 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		jacobPrev = *(jacob.end() - 2);
 		maxChainSize.push_back((maxChainSize.back() + 1) * 2 - 1); //2^n - 1
 	}
-	// DEBUG
+	/*// DEBUG
 	std::cout << "VecMain size is " << vecMain.size() << " and jacob sequence:" << std::endl;
 	PmergeMe::printVec(std::vector<int>(jacob.begin(), jacob.end()));
 	std::cout << "MaxChainSize vec is: " << std::endl;
 	PmergeMe::printVec(std::vector<int>(maxChainSize.begin(), maxChainSize.end()));
-	
+	*/
 	long	insertSize; // size of chain to insert into
 
 	std::vector<int>::iterator	it;
@@ -225,18 +225,19 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 				continue ;
 			// lower_bound performs binary search
 			insertSize = std::min(vecMain.end() - vecMain.begin(), maxChainSize[j]);
-			std::cout << "Inserting into sub main chain of length " << insertSize << std::endl;
+			//std::cout << "Inserting into sub main chain of length " << insertSize << std::endl;
 			it = std::lower_bound(vecMain.begin(), 
 				vecMain.begin() + insertSize, vecPend[i - 1]); // need 2nd it to pass bound
-			std::cout << "Inserting pend chain element index" << i - 1 << " = " 
+			/*std::cout << "Inserting pend chain element index" << i - 1 << " = " 
 				<< vecPend[i - 1] << " before elem of index " 
 				<< std::distance(vecMain.begin(), it) 
 				<< " of main chain." << std::endl; 
+			*/
 			indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
 			vecMain.insert(it, vecPend[i - 1]);
-			std::cout << "\nAfter insert:" << std::endl;
-			std::cout << "vecMain:" << std::endl;
-			PmergeMe::printVec(vecMain);
+			//std::cout << "\nAfter insert:" << std::endl;
+			//std::cout << "vecMain:" << std::endl;
+			//PmergeMe::printVec(vecMain);
 
 		}
 	}
