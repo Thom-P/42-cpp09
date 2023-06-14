@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 18:57:53 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 19:15:08 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,12 @@ void	PmergeMe::printVec(std::vector<int> const& vec)
 void	PmergeMe::sortVec(void)
 {
 	std::vector<int> vec = this->_vec; // create copy
-	std::vector<int> indexes; // not used in outermost call of recurrence so kept empty
-	// Actually fill indexes here just to verify function ok
-	for (int i = 0; i < (int)vec.size(); i++)
-		indexes.push_back(i);
+	std::vector<int> indexes(vec.size(), 0); // not useful in 1st call but needed in recurrence 
+	
+	//std::vector<int> indexes; // not useful in outermost call but needed in recurrence 
+	// Debug: Actually fill indexes here just to verify function ok
+	//for (int i = 0; i < (int)vec.size(); i++)
+	//	indexes.push_back(i);
 
 	PmergeMe::_recurSortVec(vec, indexes); // recursively sort copy
 	this->_vec = vec; // replace original
@@ -91,17 +93,6 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 		std::cout << "Case length one do nothing" << std::endl;
 		return ;
 	}
-	if (vec.size() == 2)
-	{
-		if (vec[1] >= vec[0])
-			return ;
-		std::iter_swap(vec.begin(), ++vec.begin());
-		std::iter_swap(indexes.begin(), ++indexes.begin());
-		std::cout << "Case length two swap if necess" << std::endl;
-		return ;
-	}
-
-
 
 	/* 	Virtually split into two equal-length segments (odd element unused if any)
 		Virtually pair i-th element of each segment and make comparison
@@ -127,16 +118,12 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 		if (*it1 > *it2)
 		{
 			std::iter_swap(it1, it2);
-			if (!indexes.empty())
-				std::iter_swap(itInd1, itInd2);
+			std::iter_swap(itInd1, itInd2);
 		}
 		it1++;
 		it2++;
-		if (!indexes.empty())
-		{
-			itInd1++;
-			itInd2++;
-		}
+		itInd1++;
+		itInd2++;
 	}
 	
 	//DEBUG
