@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 23:39:33 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 00:16:50 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,21 +82,21 @@ void	PmergeMe::sortVec(void)
 
 void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 {
-	//DEBUG
+	/*//DEBUG
 	std::cout << "Vec and indexes before pair sort:" << std::endl;
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
-
+	*/
 	// base cases
 	if (vec.size() == 1)
 	{	
-		std::cout << "Case length one do nothing" << std::endl;
+	//	std::cout << "Case length one do nothing" << std::endl;
 		return ;
 	}
 
 	/* 	Virtually split into two equal-length segments (odd element unused if any)
 		Virtually pair i-th element of each segment and make comparison
-		Swap to have elements in first segment <= corresponding elements in second segment */
+		Swap to have elements in first segment >= corresponding elements in second segment */
 	
 	std::vector<int>::iterator	it1 = vec.begin(); // points to beginning of first segment
 	//std::vector<int>::iterator	it2 = it1; // will point to beginning of second segment
@@ -115,7 +115,7 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	
 	for (int j = 0; j < static_cast<int>(vec.size() / 2); j++)
 	{
-		if (*it1 > *it2)
+		if (*it2 > *it1) //flipped from late realization
 		{
 			std::iter_swap(it1, it2);
 			std::iter_swap(itInd1, itInd2);
@@ -126,23 +126,23 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 		itInd2++;
 	}
 	
-	//DEBUG
+	/*//DEBUG
 	std::cout << "Vec and Indexes after pair sort:" << std::endl;
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
-
+	*/
 	// Split main and pend parts for both vec and Indexes
 	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2);
 	std::vector<int> vecPend(vec.begin() + vec.size() / 2, vec.end());
 	std::vector<int> indMain(indexes.begin(), indexes.begin() + vec.size() / 2);
 	std::vector<int> indPend(indexes.begin() + vec.size() / 2, indexes.end());
 
-	std::cout << "Splitted Vec and Indexes:" << std::endl;
+	/*std::cout << "Splitted Vec and Indexes:" << std::endl;
 	PmergeMe::printVec(vecMain);
 	PmergeMe::printVec(vecPend);
 	PmergeMe::printVec(indMain);
 	PmergeMe::printVec(indPend);
-
+	*/
 
 	std::vector<int> subIndexes;
 	for (unsigned long i = 0; i < vecMain.size(); i++)
@@ -152,20 +152,20 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::_rearrangeVec(indMain, subIndexes);
 	PmergeMe::_rearrangeVec(indPend, subIndexes);
 
-	std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
+	/*std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
 	PmergeMe::printVec(vecMain);
 	PmergeMe::printVec(vecPend);
 	PmergeMe::printVec(indMain);
 	PmergeMe::printVec(indPend);
-
+	*/
 	PmergeMe::_binaryInsertVec(vecMain, vecPend, indMain, indPend);
 	vec = vecMain;
 	indexes = indMain;
 
-	std::cout << "Vec and Indexes before return from general case:" << std::endl;
+	/*std::cout << "Vec and Indexes before return from general case:" << std::endl;
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
-
+	*/
 	return ;	
 }
 
@@ -182,6 +182,18 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
 {
+	//DEBUG
+	std::cout << "\nBefore binary insert:" << std::endl;
+	std::cout << "vecMain:" << std::endl;
+	PmergeMe::printVec(vecMain);
+	std::cout << "vecPend:" << std::endl;
+	PmergeMe::printVec(vecPend);
+	std::cout << "indMain:" << std::endl;
+	PmergeMe::printVec(indMain);
+	std::cout << "indPend:" << std::endl;
+	PmergeMe::printVec(indPend);
+	
+
 	std::vector<unsigned long> jacob;
 	std::vector<long> maxChainSize; // to insert into
 	unsigned long	jacobPrev = 1;
@@ -192,7 +204,7 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	while (jacob.back() < vecPend.size())
 	{
 		jacob.push_back(jacob.back() + 2 * jacobPrev);
-		jacobPrev = *(--jacob.end());
+		jacobPrev = *(jacob.end() - 2);
 		maxChainSize.push_back((maxChainSize.back() + 1) * 2 - 1); //2^n - 1
 	}
 	// DEBUG
@@ -211,12 +223,21 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		{
 			if (i > vecPend.size())
 				continue ;
-			std::cout << "Inserting pend chain element #" << i - 1 << std::endl; 
 			// lower_bound performs binary search
 			insertSize = std::min(vecMain.end() - vecMain.begin(), maxChainSize[j]);
-			it = std::lower_bound(vecMain.begin(), vecMain.begin() + insertSize, vecPend[i - 1]);
+			std::cout << "Inserting into sub main chain of length " << insertSize << std::endl;
+			it = std::lower_bound(vecMain.begin(), 
+				vecMain.begin() + insertSize, vecPend[i - 1]); // need 2nd it to pass bound
+			std::cout << "Inserting pend chain element index" << i - 1 << " = " 
+				<< vecPend[i - 1] << " before elem of index " 
+				<< std::distance(vecMain.begin(), it) 
+				<< " of main chain." << std::endl; 
 			indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
-			vecMain.insert(it, vecPend[i - 1]); 
+			vecMain.insert(it, vecPend[i - 1]);
+			std::cout << "\nAfter insert:" << std::endl;
+			std::cout << "vecMain:" << std::endl;
+			PmergeMe::printVec(vecMain);
+
 		}
 	}
 	
