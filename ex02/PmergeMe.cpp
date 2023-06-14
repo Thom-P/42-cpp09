@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 20:08:59 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 23:39:33 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,33 +178,43 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 }
 
 //Binary insert with jacobsthal sequence
+//issue to solve: should insert in sub chain (-> how to handle sub chain grows/indexes?)
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
 {
 	std::vector<unsigned long> jacob;
+	std::vector<long> maxChainSize; // to insert into
 	unsigned long	jacobPrev = 1;
 	jacob.push_back(1);
+	maxChainSize.push_back(1);
 	
-	// Generate needed Jacobsthal sequence
+	// Generate needed Jacobsthal sequence and maxChainSize
 	while (jacob.back() < vecPend.size())
 	{
 		jacob.push_back(jacob.back() + 2 * jacobPrev);
-		jacobPrev = jacob.at[--jacob.end()];
+		jacobPrev = *(--jacob.end());
+		maxChainSize.push_back((maxChainSize.back() + 1) * 2 - 1); //2^n - 1
 	}
 	// DEBUG
-	std::cout << "VecMain size is " << vecMain.size() << "and jacob sequence:" << std::endl;
-	PmergeMe::printVec(jacob);
+	std::cout << "VecMain size is " << vecMain.size() << " and jacob sequence:" << std::endl;
+	PmergeMe::printVec(std::vector<int>(jacob.begin(), jacob.end()));
+	std::cout << "MaxChainSize vec is: " << std::endl;
+	PmergeMe::printVec(std::vector<int>(maxChainSize.begin(), maxChainSize.end()));
+	
+	long	insertSize; // size of chain to insert into
 
 	std::vector<int>::iterator	it;
-	for (int j = 0; j < jacob.size(); j++)
+	for (unsigned long j = 0; j < jacob.size(); j++)
 	{
-		
-		for (unsigned long i = jacob[j]; i > jacob[j - 1]; i--)
+		jacobPrev = (jacob[j] == 1) ? 0 : jacob[j - 1];
+		for (unsigned long i = jacob[j]; i > jacobPrev; i--)
 		{
-			if (i > vecPend.size());
+			if (i > vecPend.size())
 				continue ;
+			std::cout << "Inserting pend chain element #" << i - 1 << std::endl; 
 			// lower_bound performs binary search
-			it = std::lower_bound(vecMain.begin(), vecMain.end(), vecPend[i - 1]);
+			insertSize = std::min(vecMain.end() - vecMain.begin(), maxChainSize[j]);
+			it = std::lower_bound(vecMain.begin(), vecMain.begin() + insertSize, vecPend[i - 1]);
 			indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
 			vecMain.insert(it, vecPend[i - 1]); 
 		}
