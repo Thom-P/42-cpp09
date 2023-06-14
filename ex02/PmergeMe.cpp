@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 17:39:18 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 17:51:37 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,17 +90,20 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 		Swap to have elements in first segment <= corresponding elements in second segment */
 	
 	std::vector<int>::iterator	it1 = vec.begin(); // points to beginning of first segment
-	std::vector<int>::iterator	it2 = it1; // will point to beginning of second segment
+	//std::vector<int>::iterator	it2 = it1; // will point to beginning of second segment
+	std::vector<int>::iterator	it2 = it1 + vec.size() / 2; // point to begin. of second segment
 	
 	std::vector<int>::iterator	itInd1 = indexes.begin(); // same for index sequence
-	std::vector<int>::iterator	itInd2 = itInd1;
+	//std::vector<int>::iterator	itInd2 = itInd1;
+	std::vector<int>::iterator	itInd2 = itInd1 + vec.size() / 2;
 	
-	while (std::distance(it1, it2) < static_cast<long>(vec.size() / 2))
+	/*while (std::distance(it1, it2) < static_cast<long>(vec.size() / 2))
 	{
 		it2++;
 		if (!indexes.empty())
 			itInd2++;
-	}
+	}*/
+	
 	for (int j = 0; j < static_cast<int>(vec.size() / 2); j++)
 	{
 		if (*it1 > *it2)
@@ -122,6 +125,10 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	std::cout << "Vec and Indexes after pair sort:" << std::endl;
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
+
+	
+
+
 
 	return ;	
 }
