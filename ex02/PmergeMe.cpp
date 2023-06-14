@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 17:51:37 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 18:38:54 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,12 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
 
+	// base case
+	if (vec.size() == 1)
+		return ;
+
+
+
 	/* 	Virtually split into two equal-length segments (odd element unused if any)
 		Virtually pair i-th element of each segment and make comparison
 		Swap to have elements in first segment <= corresponding elements in second segment */
@@ -126,12 +132,59 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
 
+	// Split main and pend parts for both vec and Indexes
+	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2 - 1);
+	std::vector<int> vecPend(vec.begin() + vec.size() / 2, vec.end());
+	std::vector<int> indMain(indexes.begin(), indexes.begin() + vec.size() / 2 - 1);
+	std::vector<int> indPend(indexes.begin() + vec.size() / 2, indexes.end());
 	
+	std::vector<int> subIndexes;
+	for (unsigned long i = 0; i < vecMain.size(); i++)
+		subIndexes.push_back(i);
+	PmergeMe::_recurSortVec(vecMain, subIndexes);
+	PmergeMe::_rearrangeVec(vecPend, subIndexes);
+	PmergeMe::_rearrangeVec(indMain, subIndexes);
+	PmergeMe::_rearrangeVec(indPend, subIndexes);
 
-
+	PmergeMe::_binaryInsertVec(vecMain, vecPend, indMain, indPend);
+	vec = vecMain;
+	indexes = indMain;
 
 	return ;	
 }
 
+void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
+{
+	std::vector<int> vecCopy = vec;
+	for (unsigned long i = 0; i < indexes.size(); i++)
+		vec[i] = vecCopy[indexes[i]];
+	return ;
+}
 
+void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
+	std::vector<int>& indMain, std::vector<int>& indPend)
+{
+	// for the moment just do a basic insertion
+	bool flagInsert;
 
+	for (unsigned long i = 0; i < vecPend.size(); i++)
+	{
+		flagInsert = false;
+		for (unsigned long j = 0; j < vecMain.size(); j++)
+		{
+			if (vecPend[i] <= vecMain[j])
+			{	
+				vecMain.insert(vecMain.begin() + j, vecPend[i]); 
+				indMain.insert(indMain.begin() + j, indPend[i]);
+				flagInsert = true;
+				break;
+			}
+		}
+		if (!flagInsert)
+		{
+			vecMain.push_back(vecPend[i]); // insert at end
+			indMain.push_back(indPend[i]);
+		}
+	}
+	return ;
+}

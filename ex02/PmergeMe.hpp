@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:11:28 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 17:24:02 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 18:32:19 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,9 @@ class PmergeMe
 
 
 		static void	_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes);
-
+		static void	_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes);
+		static void	_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
+			std::vector<int>& indMain, std::vector<int>& indPend);
 
 		std::vector<int> _vec;
 
