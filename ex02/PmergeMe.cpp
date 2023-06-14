@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 18:38:54 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 18:57:53 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,21 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
 
-	// base case
+	// base cases
 	if (vec.size() == 1)
+	{	
+		std::cout << "Case length one do nothing" << std::endl;
 		return ;
+	}
+	if (vec.size() == 2)
+	{
+		if (vec[1] >= vec[0])
+			return ;
+		std::iter_swap(vec.begin(), ++vec.begin());
+		std::iter_swap(indexes.begin(), ++indexes.begin());
+		std::cout << "Case length two swap if necess" << std::endl;
+		return ;
+	}
 
 
 
@@ -133,11 +145,18 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::printVec(indexes);
 
 	// Split main and pend parts for both vec and Indexes
-	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2 - 1);
+	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2);
 	std::vector<int> vecPend(vec.begin() + vec.size() / 2, vec.end());
-	std::vector<int> indMain(indexes.begin(), indexes.begin() + vec.size() / 2 - 1);
+	std::vector<int> indMain(indexes.begin(), indexes.begin() + vec.size() / 2);
 	std::vector<int> indPend(indexes.begin() + vec.size() / 2, indexes.end());
-	
+
+	std::cout << "Splitted Vec and Indexes:" << std::endl;
+	PmergeMe::printVec(vecMain);
+	PmergeMe::printVec(vecPend);
+	PmergeMe::printVec(indMain);
+	PmergeMe::printVec(indPend);
+
+
 	std::vector<int> subIndexes;
 	for (unsigned long i = 0; i < vecMain.size(); i++)
 		subIndexes.push_back(i);
@@ -146,9 +165,19 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	PmergeMe::_rearrangeVec(indMain, subIndexes);
 	PmergeMe::_rearrangeVec(indPend, subIndexes);
 
+	std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
+	PmergeMe::printVec(vecMain);
+	PmergeMe::printVec(vecPend);
+	PmergeMe::printVec(indMain);
+	PmergeMe::printVec(indPend);
+
 	PmergeMe::_binaryInsertVec(vecMain, vecPend, indMain, indPend);
 	vec = vecMain;
 	indexes = indMain;
+
+	std::cout << "Vec and Indexes before return from general case:" << std::endl;
+	PmergeMe::printVec(vec);
+	PmergeMe::printVec(indexes);
 
 	return ;	
 }
