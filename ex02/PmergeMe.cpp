@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/14 19:43:24 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 20:08:59 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,43 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 	return ;
 }
 
+//Binary insert with jacobsthal sequence
+void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
+	std::vector<int>& indMain, std::vector<int>& indPend)
+{
+	std::vector<unsigned long> jacob;
+	unsigned long	jacobPrev = 1;
+	jacob.push_back(1);
+	
+	// Generate needed Jacobsthal sequence
+	while (jacob.back() < vecPend.size())
+	{
+		jacob.push_back(jacob.back() + 2 * jacobPrev);
+		jacobPrev = jacob.at[--jacob.end()];
+	}
+	// DEBUG
+	std::cout << "VecMain size is " << vecMain.size() << "and jacob sequence:" << std::endl;
+	PmergeMe::printVec(jacob);
+
+	std::vector<int>::iterator	it;
+	for (int j = 0; j < jacob.size(); j++)
+	{
+		
+		for (unsigned long i = jacob[j]; i > jacob[j - 1]; i--)
+		{
+			if (i > vecPend.size());
+				continue ;
+			// lower_bound performs binary search
+			it = std::lower_bound(vecMain.begin(), vecMain.end(), vecPend[i - 1]);
+			indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
+			vecMain.insert(it, vecPend[i - 1]); 
+		}
+	}
+	
+	return ;
+}
+
+/*
 //Binary insert without jacobsthal sequence
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
@@ -191,6 +228,7 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	}
 	return ;
 }
+*/
 
 /*
 //Simple insert
