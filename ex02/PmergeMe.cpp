@@ -6,15 +6,14 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/13 20:27:26 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 17:19:10 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe(char** input)
+PmergeMe::PmergeMe(void)
 {
-	this->_parseInput(input);
 	return ;
 }
 
@@ -23,9 +22,18 @@ PmergeMe::~PmergeMe(void)
 	return ;
 }
 
-/************************************/
+/*Getters*******************************/
 
-void	PmergeMe::_parseInput(char** input)
+std::vector<int> const&	PmergeMe::getVec(void) const
+{
+	return (this->_vec);
+}
+
+/***********************************/
+
+// ################ CODE FOR VECTOR CONTAINER ####################
+
+void	PmergeMe::parseInputVec(char** input)
 {
 	char*	endptr = NULL;
 	long	tmp;
@@ -47,14 +55,6 @@ void	PmergeMe::_parseInput(char** input)
 		throw std::invalid_argument("Error: empty sequence."); // this should never happen
 	return ;
 }
-
-/*void	PmergeMe::printVec(void) const
-{
-	std::vector<int>::const_iterator	it;
-	for (it = this->_vec.begin(); it != this->_vec.end(); it++)
-		std::cout << *it << " ";
-	return ;
-}*/
 
 void	PmergeMe::printVec(std::vector<int> const& vec)
 {

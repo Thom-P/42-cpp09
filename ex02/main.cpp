@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:20:31 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/13 20:17:14 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/14 17:17:46 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@ int main(int ac, char** av)
 	}
 	try
 	{
-		PmergeMe pme(++av);
+		PmergeMe pme;
+		pme.parseInputVec(++av);
 		std::cout << "Before: ";
-		//pme.printVec();
-		//PmergeMe::printVec(vec); need a getter
+		PmergeMe::printVec(pme.getVec());
 		std::cout << std::endl;
 		pme.sortVec();
+		std::cout << "After: ";
+		PmergeMe::printVec(pme.getVec());
 	}
 	catch (std::exception const& e)
 	{
