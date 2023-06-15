@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 00:22:47 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 09:38:26 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,12 +68,7 @@ void	PmergeMe::printVec(std::vector<int> const& vec)
 void	PmergeMe::sortVec(void)
 {
 	std::vector<int> vec = this->_vec; // create copy
-	std::vector<int> indexes(vec.size(), 0); // not useful in 1st call but needed in recurrence 
-	
-	//std::vector<int> indexes; // not useful in outermost call but needed in recurrence 
-	// Debug: Actually fill indexes here just to verify function ok
-	//for (int i = 0; i < (int)vec.size(); i++)
-	//	indexes.push_back(i);
+	std::vector<int> indexes; // not useful in 1st call but needed in recurrence 
 
 	PmergeMe::_recurSortVec(vec, indexes); // recursively sort copy
 	this->_vec = vec; // replace original
@@ -82,86 +77,102 @@ void	PmergeMe::sortVec(void)
 
 void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 {
-	/*//DEBUG
-	std::cout << "Vec and indexes before pair sort:" << std::endl;
-	PmergeMe::printVec(vec);
-	PmergeMe::printVec(indexes);
-	*/
-	// base cases
+	bool isFirstCall = indexes.empty();
+
+	// Base case (length 1, do nothing)
 	if (vec.size() == 1)
-	{	
-	//	std::cout << "Case length one do nothing" << std::endl;
 		return ;
-	}
 
 	/* 	Virtually split into two equal-length segments (odd element unused if any)
 		Virtually pair i-th element of each segment and make comparison
 		Swap to have elements in first segment >= corresponding elements in second segment */
 	
 	std::vector<int>::iterator	it1 = vec.begin(); // points to beginning of first segment
-	//std::vector<int>::iterator	it2 = it1; // will point to beginning of second segment
 	std::vector<int>::iterator	it2 = it1 + vec.size() / 2; // point to begin. of second segment
-	
-	std::vector<int>::iterator	itInd1 = indexes.begin(); // same for index sequence
-	//std::vector<int>::iterator	itInd2 = itInd1;
-	std::vector<int>::iterator	itInd2 = itInd1 + vec.size() / 2;
-	
-	/*while (std::distance(it1, it2) < static_cast<long>(vec.size() / 2))
+	std::vector<int>::iterator	itInd1; // same for index sequence
+	std::vector<int>::iterator	itInd2;
+	if (!isFirstCall)
 	{
-		it2++;
-		if (!indexes.empty())
-			itInd2++;
-	}*/
+		itInd1 = indexes.begin(); // same for index sequence
+		itInd2 = itInd1 + vec.size() / 2;
+	}
 	
-	for (int j = 0; j < static_cast<int>(vec.size() / 2); j++)
+	for (unsigned long j = 0; j < vec.size() / 2; j++)
 	{
-		if (*it2 > *it1) //flipped from late realization
+		if (*it2 > *it1)
 		{
 			std::iter_swap(it1, it2);
-			std::iter_swap(itInd1, itInd2);
+			if (!isFirstCall)
+				std::iter_swap(itInd1, itInd2);
 		}
 		it1++;
 		it2++;
-		itInd1++;
-		itInd2++;
+		if (!isFirstCall)
+		{
+			itInd1++;
+			itInd2++;
+		}
 	}
 	
-	/*//DEBUG
-	std::cout << "Vec and Indexes after pair sort:" << std::endl;
-	PmergeMe::printVec(vec);
-	PmergeMe::printVec(indexes);
+	/*
+	//DEBUG
+	if (VERBOSE && isFirstCall)
+	{
+		//std::cout << "Vec and Indexes after pair swap:" << std::endl;
+		std::cout << "Vec after pair swap:" << std::endl;
+		PmergeMe::printVec(vec);
+		//PmergeMe::printVec(indexes);
+	}
 	*/
+
 	// Split main and pend parts for both vec and Indexes
 	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2);
 	std::vector<int> vecPend(vec.begin() + vec.size() / 2, vec.end());
-	std::vector<int> indMain(indexes.begin(), indexes.begin() + vec.size() / 2);
-	std::vector<int> indPend(indexes.begin() + vec.size() / 2, indexes.end());
-
-	/*std::cout << "Splitted Vec and Indexes:" << std::endl;
-	PmergeMe::printVec(vecMain);
-	PmergeMe::printVec(vecPend);
-	PmergeMe::printVec(indMain);
-	PmergeMe::printVec(indPend);
-	*/
+	std::vector<int> indMain;
+	std::vector<int> indPend;
+	if (!isFirstCall)
+	{
+		indMain.insert(indMain.end(), indexes.begin(), indexes.begin() + vec.size() / 2);
+		indPend.insert(indPend.end(), indexes.begin() + vec.size() / 2, indexes.end());
+	}
+	
+	//DEBUG
+	if (VERBOSE && isFirstCall)
+	{
+		//std::cout << "Splitted Vec and Indexes:" << std::endl;
+		std::cout << "Splitted Vec into main chain and pend chain + pair swap:" << std::endl;
+		PmergeMe::printVec(vecMain);
+		PmergeMe::printVec(vecPend);
+		//PmergeMe::printVec(indMain);
+		//PmergeMe::printVec(indPend);
+	}
 
 	std::vector<int> subIndexes;
 	for (unsigned long i = 0; i < vecMain.size(); i++)
 		subIndexes.push_back(i);
 	PmergeMe::_recurSortVec(vecMain, subIndexes);
 	PmergeMe::_rearrangeVec(vecPend, subIndexes);
-	PmergeMe::_rearrangeVec(indMain, subIndexes);
-	PmergeMe::_rearrangeVec(indPend, subIndexes);
+	if (!isFirstCall)
+	{
+		PmergeMe::_rearrangeVec(indMain, subIndexes);
+		PmergeMe::_rearrangeVec(indPend, subIndexes);
+	}
 
-	/*std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
-	PmergeMe::printVec(vecMain);
-	PmergeMe::printVec(vecPend);
-	PmergeMe::printVec(indMain);
-	PmergeMe::printVec(indPend);
-	*/
+	// DEBUG
+	if (VERBOSE && isFirstCall)
+	{
+		//std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
+		std::cout << "\nMain and pend and after recursive sort:" << std::endl;
+		PmergeMe::printVec(vecMain);
+		PmergeMe::printVec(vecPend);
+		//PmergeMe::printVec(indMain);
+		//PmergeMe::printVec(indPend);
+	}
 	PmergeMe::_binaryInsertVec(vecMain, vecPend, indMain, indPend);
 	vec = vecMain;
 	indexes = indMain;
 
+	//DEBUG
 	/*std::cout << "Vec and Indexes before return from general case:" << std::endl;
 	PmergeMe::printVec(vec);
 	PmergeMe::printVec(indexes);
@@ -177,12 +188,16 @@ void	PmergeMe::_rearrangeVec(std::vector<int>& vec, std::vector<int>& indexes)
 	return ;
 }
 
-//Binary insert with jacobsthal sequence
-//issue to solve: should insert in sub chain (-> how to handle sub chain grows/indexes?)
+// Binary insert with jacobsthal sequence
 void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
 	std::vector<int>& indMain, std::vector<int>& indPend)
 {
-	/*//DEBUG
+	bool isFirstCall = indMain.empty();
+
+	/*
+	//DEBUG
+	if (verbose && isFirstCall)
+	{
 	std::cout << "\nBefore binary insert:" << std::endl;
 	std::cout << "vecMain:" << std::endl;
 	PmergeMe::printVec(vecMain);
@@ -191,8 +206,9 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	std::cout << "indMain:" << std::endl;
 	PmergeMe::printVec(indMain);
 	std::cout << "indPend:" << std::endl;
-	PmergeMe::printVec(indPend);*/
-	
+	PmergeMe::printVec(indPend);
+	}
+	*/
 
 	std::vector<unsigned long> jacob;
 	std::vector<long> maxChainSize; // to insert into
@@ -207,12 +223,16 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		jacobPrev = *(jacob.end() - 2);
 		maxChainSize.push_back((maxChainSize.back() + 1) * 2 - 1); //2^n - 1
 	}
-	/*// DEBUG
-	std::cout << "VecMain size is " << vecMain.size() << " and jacob sequence:" << std::endl;
-	PmergeMe::printVec(std::vector<int>(jacob.begin(), jacob.end()));
-	std::cout << "MaxChainSize vec is: " << std::endl;
-	PmergeMe::printVec(std::vector<int>(maxChainSize.begin(), maxChainSize.end()));
-	*/
+	
+	// DEBUG
+	/*if (VERBOSE && isFirstCall)
+	{
+		std::cout << "Main chain size is " << vecMain.size() << " and jacob sequence:" << std::endl;
+		PmergeMe::printVec(std::vector<int>(jacob.begin(), jacob.end()));
+		std::cout << "Maximum chain sizes for successive insertions are: " << std::endl;
+		PmergeMe::printVec(std::vector<int>(maxChainSize.begin(), maxChainSize.end()));
+	}*/
+
 	long	insertSize; // size of chain to insert into
 
 	std::vector<int>::iterator	it;
@@ -223,25 +243,34 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		{
 			if (i > vecPend.size())
 				continue ;
-			// lower_bound performs binary search
+			/*if (VERBOSE && isFirstCall)
+			{	
+				std::cout << "Main and pend before insert:" << std::endl;
+				PmergeMe::printVec(vecMain);
+				PmergeMe::printVec(vecPend);
+			}*/
+			// do here very first insert??
 			insertSize = std::min(vecMain.end() - vecMain.begin(), maxChainSize[j]);
-			//std::cout << "Inserting into sub main chain of length " << insertSize << std::endl;
+			if (VERBOSE && isFirstCall)	
+				std::cout << "\nInserting pend element " <<  vecPend[i - 1] 
+					<< " into sub main chain of length " << insertSize << ":" << std::endl;
+			
+			// Lower_bound performs binary search
 			it = std::lower_bound(vecMain.begin(), 
 				vecMain.begin() + insertSize, vecPend[i - 1]); // need 2nd it to pass bound
-			/*std::cout << "Inserting pend chain element index" << i - 1 << " = " 
-				<< vecPend[i - 1] << " before elem of index " 
-				<< std::distance(vecMain.begin(), it) 
-				<< " of main chain." << std::endl; 
-			*/
-			indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
+			
+			if (!isFirstCall)
+				indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
 			vecMain.insert(it, vecPend[i - 1]);
-			//std::cout << "\nAfter insert:" << std::endl;
-			//std::cout << "vecMain:" << std::endl;
-			//PmergeMe::printVec(vecMain);
-
+			
+			if (VERBOSE && isFirstCall)
+			{
+				//std::cout << "Main chain and pend chain after insert:" << std::endl; //nb:: element is not suppressed from pend
+				PmergeMe::printVec(vecMain);
+				PmergeMe::printVec(vecPend);
+			}
 		}
 	}
-	
 	return ;
 }
 
