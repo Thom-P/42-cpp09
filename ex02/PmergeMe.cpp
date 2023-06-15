@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 09:38:26 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 09:46:55 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,29 +243,29 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		{
 			if (i > vecPend.size())
 				continue ;
-			/*if (VERBOSE && isFirstCall)
-			{	
-				std::cout << "Main and pend before insert:" << std::endl;
-				PmergeMe::printVec(vecMain);
-				PmergeMe::printVec(vecPend);
-			}*/
-			// do here very first insert??
+			
 			insertSize = std::min(vecMain.end() - vecMain.begin(), maxChainSize[j]);
 			if (VERBOSE && isFirstCall)	
 				std::cout << "\nInserting pend element " <<  vecPend[i - 1] 
 					<< " into sub main chain of length " << insertSize << ":" << std::endl;
 			
-			// Lower_bound performs binary search
-			it = std::lower_bound(vecMain.begin(), 
-				vecMain.begin() + insertSize, vecPend[i - 1]); // need 2nd it to pass bound
-			
+			// Very first insert need no comparison
+			if (i == 1)
+			{
+				it = vecMain.begin();	
+			}
+			else // Lower_bound performs binary search
+			{
+				it = std::lower_bound(vecMain.begin(), 
+					vecMain.begin() + insertSize, vecPend[i - 1]); // need 2nd it to pass bound
+			}
+
 			if (!isFirstCall)
 				indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i - 1]);
 			vecMain.insert(it, vecPend[i - 1]);
 			
 			if (VERBOSE && isFirstCall)
 			{
-				//std::cout << "Main chain and pend chain after insert:" << std::endl; //nb:: element is not suppressed from pend
 				PmergeMe::printVec(vecMain);
 				PmergeMe::printVec(vecPend);
 			}
