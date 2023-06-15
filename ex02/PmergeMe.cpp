@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:16:06 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 09:46:55 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 09:56:03 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,17 +114,6 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 		}
 	}
 	
-	/*
-	//DEBUG
-	if (VERBOSE && isFirstCall)
-	{
-		//std::cout << "Vec and Indexes after pair swap:" << std::endl;
-		std::cout << "Vec after pair swap:" << std::endl;
-		PmergeMe::printVec(vec);
-		//PmergeMe::printVec(indexes);
-	}
-	*/
-
 	// Split main and pend parts for both vec and Indexes
 	std::vector<int> vecMain(vec.begin(), vec.begin() + vec.size() / 2);
 	std::vector<int> vecPend(vec.begin() + vec.size() / 2, vec.end());
@@ -139,12 +128,9 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	//DEBUG
 	if (VERBOSE && isFirstCall)
 	{
-		//std::cout << "Splitted Vec and Indexes:" << std::endl;
 		std::cout << "Splitted Vec into main chain and pend chain + pair swap:" << std::endl;
 		PmergeMe::printVec(vecMain);
 		PmergeMe::printVec(vecPend);
-		//PmergeMe::printVec(indMain);
-		//PmergeMe::printVec(indPend);
 	}
 
 	std::vector<int> subIndexes;
@@ -161,22 +147,14 @@ void	PmergeMe::_recurSortVec(std::vector<int>& vec, std::vector<int>& indexes)
 	// DEBUG
 	if (VERBOSE && isFirstCall)
 	{
-		//std::cout << "Splitted Vec and Indexes after rearrage:" << std::endl;
 		std::cout << "\nMain and pend and after recursive sort:" << std::endl;
 		PmergeMe::printVec(vecMain);
 		PmergeMe::printVec(vecPend);
-		//PmergeMe::printVec(indMain);
-		//PmergeMe::printVec(indPend);
 	}
 	PmergeMe::_binaryInsertVec(vecMain, vecPend, indMain, indPend);
 	vec = vecMain;
 	indexes = indMain;
 
-	//DEBUG
-	/*std::cout << "Vec and Indexes before return from general case:" << std::endl;
-	PmergeMe::printVec(vec);
-	PmergeMe::printVec(indexes);
-	*/
 	return ;	
 }
 
@@ -194,28 +172,14 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 {
 	bool isFirstCall = indMain.empty();
 
-	/*
-	//DEBUG
-	if (verbose && isFirstCall)
-	{
-	std::cout << "\nBefore binary insert:" << std::endl;
-	std::cout << "vecMain:" << std::endl;
-	PmergeMe::printVec(vecMain);
-	std::cout << "vecPend:" << std::endl;
-	PmergeMe::printVec(vecPend);
-	std::cout << "indMain:" << std::endl;
-	PmergeMe::printVec(indMain);
-	std::cout << "indPend:" << std::endl;
-	PmergeMe::printVec(indPend);
-	}
-	*/
-
-	std::vector<unsigned long> jacob;
-	std::vector<long> maxChainSize; // to insert into
-	unsigned long	jacobPrev = 1;
+	std::vector<unsigned long>	jacob;
+	std::vector<long>			maxChainSize; // to insert into
+	unsigned long				jacobPrev = 1;
+	long						insertSize; // size of chain to insert into
+	std::vector<int>::iterator	it; // position before which to insert
+	
 	jacob.push_back(1);
 	maxChainSize.push_back(1);
-	
 	// Generate needed Jacobsthal sequence and maxChainSize
 	while (jacob.back() < vecPend.size())
 	{
@@ -223,19 +187,7 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 		jacobPrev = *(jacob.end() - 2);
 		maxChainSize.push_back((maxChainSize.back() + 1) * 2 - 1); //2^n - 1
 	}
-	
-	// DEBUG
-	/*if (VERBOSE && isFirstCall)
-	{
-		std::cout << "Main chain size is " << vecMain.size() << " and jacob sequence:" << std::endl;
-		PmergeMe::printVec(std::vector<int>(jacob.begin(), jacob.end()));
-		std::cout << "Maximum chain sizes for successive insertions are: " << std::endl;
-		PmergeMe::printVec(std::vector<int>(maxChainSize.begin(), maxChainSize.end()));
-	}*/
 
-	long	insertSize; // size of chain to insert into
-
-	std::vector<int>::iterator	it;
 	for (unsigned long j = 0; j < jacob.size(); j++)
 	{
 		jacobPrev = (jacob[j] == 1) ? 0 : jacob[j - 1];
@@ -274,51 +226,8 @@ void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vec
 	return ;
 }
 
-/*
-//Binary insert without jacobsthal sequence
-void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
-	std::vector<int>& indMain, std::vector<int>& indPend)
-{
-	std::vector<int>::iterator	it;
-	for (unsigned long i = 0; i < vecPend.size(); i++)
-	{
-		// lower_bound performs binary search
-		it = std::lower_bound(vecMain.begin(), vecMain.end(), vecPend[i]);
-		indMain.insert(indMain.begin() + std::distance(vecMain.begin(), it), indPend[i]);
-		vecMain.insert(it, vecPend[i]); 
-	}
-	return ;
-}
-*/
+/***********************************/
 
-/*
-//Simple insert
-void	PmergeMe::_binaryInsertVec(std::vector<int>& vecMain, std::vector<int>& vecPend,
-	std::vector<int>& indMain, std::vector<int>& indPend)
-{
-	// for the moment just do a basic insertion
-	bool flagInsert;
+// ################ CODE FOR DEQUE CONTAINER ####################
 
-	for (unsigned long i = 0; i < vecPend.size(); i++)
-	{
-		flagInsert = false;
-		for (unsigned long j = 0; j < vecMain.size(); j++)
-		{
-			if (vecPend[i] <= vecMain[j])
-			{	
-				vecMain.insert(vecMain.begin() + j, vecPend[i]); 
-				indMain.insert(indMain.begin() + j, indPend[i]);
-				flagInsert = true;
-				break;
-			}
-		}
-		if (!flagInsert)
-		{
-			vecMain.push_back(vecPend[i]); // insert at end
-			indMain.push_back(indPend[i]);
-		}
-	}
-	return ;
-}
-*/
 

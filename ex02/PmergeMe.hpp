@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:11:28 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 09:42:32 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 10:19:15 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <cstdlib>
 # include <algorithm>
 
-# define VERBOSE 1
+# define VERBOSE 0
 
 class PmergeMe
 {
