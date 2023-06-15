@@ -6,7 +6,7 @@
 /*   By: tplanes <tplanes@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 18:20:31 by tplanes           #+#    #+#             */
-/*   Updated: 2023/06/15 10:32:41 by tplanes          ###   ########.fr       */
+/*   Updated: 2023/06/15 10:36:07 by tplanes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ int main(int ac, char** av)
 	
 		clock_t beginDeq = std::clock();
 		pme.parseInputDeq(av);
-		std::cout << "Before: ";
-		PmergeMe::printDeq(pme.getDeq());
+		//std::cout << "Before: ";
+		//PmergeMe::printDeq(pme.getDeq());
 		pme.sortDeq();
-		std::cout << "After: ";
-		PmergeMe::printDeq(pme.getDeq());
+		//std::cout << "After: ";
+		//PmergeMe::printDeq(pme.getDeq());
   		clock_t endDeq = clock();
   		elapsed_usecs = double(endDeq - beginDeq) / CLOCKS_PER_SEC * 1000000;
 		std::cout << "Time to process a range of " << ac - 1 
